@@ -1,5 +1,7 @@
 import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
 import weka.classifiers.lazy.IBk;
+import weka.core.Debug;
 import weka.core.Instances;
 
 import java.io.*;
@@ -28,6 +30,7 @@ public class KNearestNeighbours {
         InputStream testInputStream = new FileInputStream(testData);
         BufferedReader testReader = new BufferedReader(new InputStreamReader(testInputStream));
 
+        // Classify
         Instances test = new Instances(testReader);
         test.setClassIndex(test.numAttributes() - 1);
 
@@ -46,9 +49,23 @@ public class KNearestNeighbours {
             else wrongResults++;
         }
 
-        System.out.println(correctResults);
-        System.out.println(wrongResults);
+        System.out.println("Correct results: " + correctResults);
+        System.out.println("Wrong results: " + wrongResults);
 
+        double correctResultsDouble = correctResults;
+        double accuracy = correctResultsDouble / test.numInstances() * 100;
+        System.out.println("Accuracy: " + accuracy + "%");
+        Evaluation evaluation;
+
+        // Confusion matrix
+        Debug.Random random = new Debug.Random(10000);
+
+        try {
+            evaluation = new Evaluation(test);
+            evaluation.crossValidateModel(ibk, test, 10, random);
+            System.out.println("Confusion Matrix: " + evaluation.toMatrixString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-
 }
