@@ -5,20 +5,47 @@ import weka.core.Debug;
 import weka.core.Instances;
 
 import java.io.*;
+import java.util.Scanner;
 
 public class KNearestNeighbours {
 
+    // Number of folds for the k-fold cross validation
+    private static int folds = 2;
+
     public static void main(String[] args) throws IOException {
 
+        File folder = new File("src/");
+        Scanner scanner = new Scanner(System.in);
+        int fileCount = 0;
+        File[] listOfFiles = folder.listFiles();
+        System.out.println("Choose a file to train from:");
+        for (File f : listOfFiles) {
+            fileCount++;
+            System.out.println(fileCount + ". " + f.getName());
+        }
+        fileCount = 0;
+        File selectedTrainingFile = listOfFiles[scanner.nextInt() - 1];
+        System.out.println("Choose a file to test:");
+        for (File f : listOfFiles) {
+            fileCount++;
+            System.out.println(fileCount + ". " + f.getName());
+        }
+        File selectedTestFile = listOfFiles[scanner.nextInt() - 1];
+
         // Read the training data
-        File trainingData = new File("src/iris_train.arff");
+        File trainingData = new File(selectedTrainingFile.toString());
         InputStream trainingInputStream = new FileInputStream(trainingData);
         BufferedReader trainingReader = new BufferedReader(new InputStreamReader(trainingInputStream));
 
         // Build the kNN model
         Instances data = new Instances(trainingReader);
+
+        // setClassIndex is used to define the attribute that will represent the class (for prediction purposes).
+        // Given that the index starts at zero, data.numAttributes() - 1 represents the last attribute of the test data set.
         data.setClassIndex(data.numAttributes() - 1);
+
         Classifier ibk = new IBk();
+
         try {
             ibk.buildClassifier(data);
         } catch (Exception e) {
@@ -26,7 +53,7 @@ public class KNearestNeighbours {
         }
 
         // Load the test data
-        File testData = new File("src/iris_test.arff");
+        File testData = new File(selectedTestFile.toString());
         InputStream testInputStream = new FileInputStream(testData);
         BufferedReader testReader = new BufferedReader(new InputStreamReader(testInputStream));
 
@@ -42,11 +69,18 @@ public class KNearestNeighbours {
             double actualValue = test.instance(i).classValue();
             try {
                 predictedValue = ibk.classifyInstance(test.instance(i));
+                if (predictedValue == actualValue) {
+                    System.out.println("Correctly predicted " + predictedValue + ", actual value: " + actualValue);
+                    correctResults++;
+                }
+                else {
+                    System.out.println("Wrongly predicted " + predictedValue + ", actual value: " + actualValue);
+                    wrongResults++;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (predictedValue == actualValue) correctResults++;
-            else wrongResults++;
+
         }
 
         System.out.println("Correct results: " + correctResults);
@@ -62,7 +96,7 @@ public class KNearestNeighbours {
 
         try {
             evaluation = new Evaluation(test);
-            evaluation.crossValidateModel(ibk, test, 10, random);
+            evaluation.crossValidateModel(ibk, test, folds, random);
             System.out.println("Confusion Matrix: " + evaluation.toMatrixString());
         } catch (Exception e) {
             e.printStackTrace();

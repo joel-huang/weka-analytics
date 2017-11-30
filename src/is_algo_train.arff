@@ -1,0 +1,15 @@
+% Title: database of scores
+
+@RELATION software
+
+@ATTRIBUTE IS-score         REAL
+@ATTRIBUTE Algo-score       REAL
+@ATTRIBUTE class            {Good,Bad}
+
+@DATA
+10,15,Bad
+20,25,Bad
+25,30,Bad
+20,40,Good
+30,15,Good
+10,45,Good
