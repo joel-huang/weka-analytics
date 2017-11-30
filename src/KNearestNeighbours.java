@@ -44,7 +44,9 @@ public class KNearestNeighbours {
         // Given that the index starts at zero, data.numAttributes() - 1 represents the last attribute of the test data set.
         data.setClassIndex(data.numAttributes() - 1);
 
+        // K-nearest neighbours classifier. Can select appropriate value of K based on cross-validation. Can also do distance weighting.
         Classifier ibk = new IBk();
+        ibk.setDebug(true);
 
         try {
             ibk.buildClassifier(data);
