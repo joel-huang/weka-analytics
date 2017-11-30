@@ -28,21 +28,22 @@ public class SupportVectorMachine {
         scanner.close();
     }
 
-    private void trainModel() {
-
-    }
-
-    public static void main(String[] args) throws Exception {
+    private static void trainModel(WLSVM svmClass) throws Exception {
         // Read the training data
         File trainingData = new File("src/iris_train.arff");
         InputStream trainingInputStream = new FileInputStream(trainingData);
         BufferedReader trainingReader = new BufferedReader(new InputStreamReader(trainingInputStream));
 
         // Model the SVM
-        WLSVM svmClass = new WLSVM();
         Instances data = new Instances(trainingReader);
         data.setClassIndex(data.numAttributes() - 1);
         svmClass.buildClassifier(data);
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        WLSVM svmClass = new WLSVM();
+        trainModel(svmClass);
 
         // Get input as the test
         getInput();
